@@ -609,6 +609,124 @@
             color: #6b7280;
             font-size: 0.9rem;
         }
+
+        /* Login/Register Modal */
+        .auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-modal {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .auth-tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        /* User Profile */
+        .profile-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .profile-info h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .profile-info p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-card {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .detail-card h5 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-card p {
+            color: var(--dark-color);
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -624,7 +742,7 @@
             <p>Premium WhatsApp Fix Service</p>
         </div>
 
-        <div class="user-info">
+        <div class="user-info" id="userInfo" style="display: none;">
             <div class="d-flex align-items-center gap-3">
                 <div class="user-avatar" id="userAvatar">U</div>
                 <div class="user-details">
@@ -635,11 +753,26 @@
             </div>
         </div>
 
-        <ul class="sidebar-menu">
+        <ul class="sidebar-menu" id="authMenu">
+            <li>
+                <a href="#" onclick="showAuthModal()">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login / Register</span>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="sidebar-menu" id="userMenu" style="display: none;">
             <li>
                 <a href="#" onclick="showSection('dashboard')" class="active">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('profile')">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
                 </a>
             </li>
             <li>
@@ -678,13 +811,77 @@
                     <span>Leaderboard</span>
                 </a>
             </li>
+            <li>
+                <a href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
         </ul>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Dashboard Section -->
-        <div id="dashboard-section" class="content-section">
+        <!-- Welcome Section (Not Authenticated) -->
+        <div id="welcome-section" class="content-section">
+            <div class="content-header">
+                <h1>Welcome to ADI FIX MERAH</h1>
+                <p>Premium WhatsApp Fix Service</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <h3>About Us</h3>
+                        <p>ADI FIX MERAH is a premium service for fixing banned or locked WhatsApp accounts. We use advanced technology and multiple senders to ensure the highest success rate.</p>
+                        <div class="mt-4">
+                            <h4>Features:</h4>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Real-time processing</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Multiple sender accounts</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>VIP packages available</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>24/7 support</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <h3>Quick Stats</h3>
+                        <div class="stats-card mb-3">
+                            <div class="stats-icon primary">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stats-value">0</div>
+                            <div class="stats-label">Total Users</div>
+                        </div>
+                        <div class="stats-card mb-3">
+                            <div class="stats-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stats-value">0</div>
+                            <div class="stats-label">Success Fixes</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-icon warning">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="stats-value">0</div>
+                            <div class="stats-label">VIP Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <button class="btn btn-primary btn-lg" onclick="showAuthModal()">
+                    <i class="fas fa-sign-in-alt"></i> Get Started
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Section (Authenticated) -->
+        <div id="dashboard-section" class="content-section" style="display: none;">
             <div class="content-header">
                 <h1>Dashboard</h1>
                 <p>Monitor your account activity and statistics</p>
@@ -795,6 +992,61 @@
                         <h4 class="feature-title">Multi-Platform</h4>
                         <p class="feature-desc">Works on all devices</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile-section" class="content-section" style="display: none;">
+            <div class="profile-section">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+                    <div class="profile-info">
+                        <h3 id="profileName">User Profile</h3>
+                        <p>ID: <span id="profileUserId">Loading...</span></p>
+                    </div>
+                </div>
+
+                <div class="profile-details">
+                    <div class="detail-card">
+                        <h5>Username</h5>
+                        <p id="profileUsername">Loading...</p>
+                    </div>
+                    <div class="detail-card">
+                        <h5>Email</h5>
+                        <p id="profileEmail">Loading...</p>
+                    </div>
+                    <div class="detail-card">
+                        <h5>Bio</h5>
+                        <p id="profileBio">Loading...</p>
+                    </div>
+                    <div class="detail-card">
+                        <h5>Registration Time</h5>
+                        <p id="profileRegTime">Loading...</p>
+                    </div>
+                    <div class="detail-card">
+                        <h5>Last Login</h5>
+                        <p id="profileLoginTime">Loading...</p>
+                    </div>
+                    <div class="detail-card">
+                        <h5>IP Address</h5>
+                        <p id="profileIP">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h4>Edit Profile</h4>
+                    <form id="profileForm">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editBio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="editBio" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1034,6 +1286,54 @@
         </div>
     </div>
 
+    <!-- Auth Modal -->
+    <div class="auth-container" id="authModal" style="display: none;">
+        <div class="auth-modal">
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
+                <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+            </div>
+
+            <div class="auth-form active" id="loginForm">
+                <h3>Login to Your Account</h3>
+                <form onsubmit="handleLogin(event)">
+                    <div class="mb-3">
+                        <label for="loginUsername" class="form-label">Username or Email</label>
+                        <input type="text" class="form-control" id="loginUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                </form>
+            </div>
+
+            <div class="auth-form" id="registerForm">
+                <h3>Create New Account</h3>
+                <form onsubmit="handleRegister(event)">
+                    <div class="mb-3">
+                        <label for="registerName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="registerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="registerUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="registerEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="registerPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Spinner -->
     <div class="spinner-container" id="loadingSpinner">
         <div class="spinner"></div>
@@ -1044,34 +1344,189 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Global variables
-        let currentUserId = Math.floor(Math.random() * 1000000);
-        let isVIP = false;
+        let currentSession = null;
+        let currentUser = null;
         let dailyUsed = 0;
         let dailyLimit = 2;
         let userHistory = [];
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            loadUserData();
+            checkSession();
             loadStats();
             loadLeaderboard();
             loadSenderList();
-            loadHistory();
             setupWebSocket();
         });
 
-        // Initialize app
-        function initializeApp() {
-            document.getElementById('userId').textContent = currentUserId;
-            document.getElementById('userName').textContent = `User${currentUserId}`;
-            document.getElementById('userAvatar').textContent = `U${currentUserId.charAt(0)}`;
+        // Check session
+        async function checkSession() {
+            const savedSession = localStorage.getItem('session');
+            if (savedSession) {
+                try {
+                    const response = await fetch(`/api/user?session=${savedSession}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        currentSession = savedSession;
+                        currentUser = data.user;
+                        showAuthenticatedUI();
+                    } else {
+                        localStorage.removeItem('session');
+                        showUnauthenticatedUI();
+                    }
+                } catch (error) {
+                    console.error('Session check error:', error);
+                    localStorage.removeItem('session');
+                    showUnauthenticatedUI();
+                }
+            } else {
+                showUnauthenticatedUI();
+            }
+        }
+
+        // Show authenticated UI
+        function showAuthenticatedUI() {
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+            document.getElementById('authMenu').style.display = 'none';
+            document.getElementById('userMenu').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'block';
             
-            // Check if user is VIP
-            checkVIPStatus();
+            // Update user info
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userId').textContent = currentUser.id;
+            
+            const isVIP = checkVIPStatus(currentUser.id);
+            const statusText = isVIP ? 'VIP Member' : 'Free User';
+            const statusColor = isVIP ? 'var(--success-color)' : 'var(--warning-color)';
+            document.getElementById('userStatus').textContent = statusText;
+            document.getElementById('userStatus').style.color = statusColor;
+            
+            // Load user data
+            loadUserData();
+            loadProfile();
+        }
+
+        // Show unauthenticated UI
+        function showUnauthenticatedUI() {
+            document.getElementById('welcome-section').style.display = 'block';
+            document.getElementById('dashboard-section').style.display = 'none';
+            document.getElementById('authMenu').style.display = 'block';
+            document.getElementById('userMenu').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+
+        // Show auth modal
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+        }
+
+        // Hide auth modal
+        function hideAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        // Switch auth tab
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('.auth-tab:first-child').classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelector('.auth-tab:last-child').classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+        }
+
+        // Handle login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentSession = data.session;
+                    currentUser = data.user;
+                    localStorage.setItem('session', currentSession);
+                    
+                    hideAuthModal();
+                    showAuthenticatedUI();
+                    showToast('Login successful!', 'success');
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('Login failed', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Handle register
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    hideAuthModal();
+                    showAuthenticatedUI();
+                    showToast('Registration successful!', 'success');
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showToast('Registration failed', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('session');
+            currentSession = null;
+            currentUser = null;
+            showUnauthenticatedUI();
+            showToast('Logged out successfully', 'success');
         }
 
         // Toggle sidebar
@@ -1100,51 +1555,33 @@
             if (window.innerWidth <= 768) {
                 toggleSidebar();
             }
+            
+            // Load section-specific data
+            if (sectionName === 'history') {
+                loadHistory();
+            }
+            if (sectionName === 'sender-list') {
+                loadSenderList();
+            }
         }
 
         // Load user data
         function loadUserData() {
-            // Simulate loading user data
-            const userData = {
-                id: currentUserId,
-                name: `User${currentUserId}`,
-                isVIP: isVIP,
-                dailyUsed: dailyUsed,
-                dailyLimit: dailyLimit
-            };
-            
-            // Update UI based on user status
-            if (isVIP) {
-                dailyLimit = 99999;
-                document.getElementById('userStatus').textContent = 'VIP Member';
-                document.getElementById('userStatus').style.color = 'var(--success-color)';
-                showToast('Welcome back, VIP Member!', 'success');
-            } else {
-                document.getElementById('userStatus').textContent = 'Free User';
-                document.getElementById('userStatus').style.color = 'var(--warning-color)';
-            }
-            
             // Calculate daily usage
             const today = new Date().toDateString();
-            userHistory = history.filter(h => h.user === currentUserId);
+            userHistory = history.filter(h => h.user === currentUser.id);
             const todayHistory = userHistory.filter(h => new Date(h.time).toDateString() === today);
             dailyUsed = todayHistory.length;
+            
+            const isVIP = checkVIPStatus(currentUser.id);
+            dailyLimit = isVIP ? 99999 : config.limits.dailyLimitFree;
             
             updateDailyUsage();
         }
 
         // Check VIP status
-        function checkVIPStatus() {
-            // Simulate checking VIP status
-            setTimeout(() => {
-                // Random chance to be VIP for demo
-                isVIP = Math.random() > 0.7;
-                if (isVIP) {
-                    dailyLimit = 99999;
-                    showToast('You are a VIP Member!', 'success');
-                }
-                loadUserData();
-            }, 1000);
+        function checkVIPStatus(userId) {
+            return prems.some(p => p.id === userId);
         }
 
         // Update daily usage
@@ -1161,6 +1598,62 @@
                 document.getElementById('dailyUsageBar').style.backgroundColor = 'var(--success-color)';
             }
         }
+
+        // Load profile
+        function loadProfile() {
+            document.getElementById('profileAvatar').textContent = currentUser.name.charAt(0);
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileUserId').textContent = currentUser.id;
+            document.getElementById('profileUsername').textContent = currentUser.username;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileBio').textContent = currentUser.bio || 'No bio set';
+            document.getElementById('profileRegTime').textContent = formatTanggalID(currentUser.registrationTime);
+            document.getElementById('profileLoginTime').textContent = currentUser.loginTime ? formatTanggalID(currentUser.loginTime) : 'Never';
+            document.getElementById('profileIP').textContent = currentUser.ip || 'Unknown';
+            
+            // Populate edit form
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editBio').value = currentUser.bio || '';
+        }
+
+        // Handle profile update
+        document.getElementById('profileForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('editName').value;
+            const bio = document.getElementById('editBio').value;
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/update-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session: currentSession,
+                        name,
+                        bio
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUser = data.user;
+                    loadProfile();
+                    showToast('Profile updated successfully!', 'success');
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Profile update error:', error);
+                showToast('Failed to update profile', 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
 
         // Load statistics
         async function loadStats() {
@@ -1212,7 +1705,6 @@
         // Load sender list
         async function loadSenderList() {
             try {
-                // Simulate loading senders
                 const senderList = document.getElementById('senderList');
                 senderList.innerHTML = '';
                 
@@ -1254,7 +1746,6 @@
         // Load history
         async function loadHistory() {
             try {
-                // Simulate loading history
                 const tbody = document.getElementById('historyTableBody');
                 tbody.innerHTML = '';
                 
@@ -1265,7 +1756,7 @@
                     const number = `628${Math.floor(Math.random() * 100000000)}`;
                     const statuses = ['success', 'failed', 'pending', 'resended'];
                     const status = statuses[Math.floor(Math.random() * statuses.length)];
-                    const id = `LRFM${currentUserId.toString(36).toUpperCase()}${Date.now().toString(16).toUpperCase()}`;
+                    const id = `LRFM${currentUser.id.toString(36).toUpperCase()}${Date.now().toString(16).toUpperCase()}`;
                     
                     const statusClass = status === 'success' ? 'success' : 
                                        status === 'failed' ? 'failed' : 
@@ -1315,7 +1806,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        userId: currentUserId,
+                        session: currentSession,
                         number: phoneNumber
                     })
                 });
@@ -1373,6 +1864,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        session: currentSession,
                         email,
                         password,
                         limit
@@ -1410,7 +1902,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        userId: currentUserId,
+                        session: currentSession,
                         packageKey: packageKey
                     })
                 });
@@ -1419,10 +1911,8 @@
                 
                 if (data.success) {
                     showToast(`Payment initiated! Invoice: ${data.invoice}`, 'success');
-                    isVIP = true;
-                    dailyLimit = 99999;
-                    showToast('Welcome to VIP!', 'success');
                     loadUserData();
+                    showToast('Welcome to VIP!', 'success');
                 } else {
                     showToast(data.error || 'Failed to initiate payment', 'error');
                 }
@@ -1446,7 +1936,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        userId: currentUserId
+                        session: currentSession
                     })
                 });
                 
@@ -1492,17 +1982,15 @@
             });
             
             socket.on('fix_sent', (data) => {
-                if (data.userId === currentUserId) {
+                if (data.userId === currentUser.id) {
                     showToast(`Fix sent for number: ${data.number} - Status: ${data.status}`, 'success');
                     loadHistory();
                 }
             });
             
             socket.on('payment_success', (data) => {
-                if (data.userId === currentUserId) {
+                if (data.userId === currentUser.id) {
                     showToast('Payment successful! VIP activated.', 'success');
-                    isVIP = true;
-                    dailyLimit = 99999;
                     loadUserData();
                     loadStats();
                 }

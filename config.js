@@ -11,6 +11,9 @@ module.exports = {
         }
     },
 
+    // Target Email for Notifications
+    targetEmail: "support@support.whatsapp.com",
+
     // Database Configuration
     database: {
         files: {
@@ -18,7 +21,8 @@ module.exports = {
             users: 'users.json',
             history: 'history.json',
             premium: 'prem.json',
-            payments: 'payments.json'
+            payments: 'payments.json',
+            sessions: 'sessions.json'
         },
         autoSaveInterval: 300000, // 5 minutes
         backupInterval: 86400000 // 24 hours
@@ -85,7 +89,10 @@ module.exports = {
         enablePaymentGateway: true,
         enableAddSender: true,
         enableSenderList: true,
-        enableEmailNotifications: true
+        enableEmailNotifications: true,
+        enableUserRegistration: true,
+        enableUserProfile: true,
+        enableDataBackup: true
     },
 
     // Payment Configuration

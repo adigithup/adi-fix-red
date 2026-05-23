@@ -1,7 +1,7 @@
 {
   "name": "adi-fix-merah-bot",
-  "version": "7.0.0",
-  "description": "Premium WhatsApp Fix Service with Real-time Processing",
+  "version": "8.0.0",
+  "description": "Premium WhatsApp Fix Service with Enhanced Data Storage",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -19,7 +19,11 @@
     "qris",
     "payment",
     "email",
-    "nodemailer"
+    "nodemailer",
+    "authentication",
+    "session",
+    "backup",
+    "security"
   ],
   "author": "ADI BOT",
   "license": "MIT",
@@ -44,7 +48,7 @@
     "supertest": "^6.3.3"
   },
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=20.0.0",
     "npm": ">=8.0.0"
   },
   "repository": {

@@ -5,6 +5,7 @@ const socketIo = require('socket.io');
 const axios = require('axios');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const config = require('./config');
 
 const app = express();
@@ -26,6 +27,7 @@ let users = [];
 let history = [];
 let prems = [];
 let payments = [];
+let sessions = [];
 
 function loadDatabase() {
   try {
@@ -34,6 +36,7 @@ function loadDatabase() {
     if (fs.existsSync('history.json')) history = JSON.parse(fs.readFileSync('history.json', 'utf8'));
     if (fs.existsSync('prem.json')) prems = JSON.parse(fs.readFileSync('prem.json', 'utf8'));
     if (fs.existsSync('payments.json')) payments = JSON.parse(fs.readFileSync('payments.json', 'utf8'));
+    if (fs.existsSync('sessions.json')) sessions = JSON.parse(fs.readFileSync('sessions.json', 'utf8'));
     console.log('[DATABASE] All files loaded successfully');
   } catch (error) {
     console.error('[DATABASE ERROR]', error.message);
@@ -48,9 +51,33 @@ function saveDatabase() {
     fs.writeFileSync('history.json', JSON.stringify(history, null, 2));
     fs.writeFileSync('prem.json', JSON.stringify(prems, null, 2));
     fs.writeFileSync('payments.json', JSON.stringify(payments, null, 2));
+    fs.writeFileSync('sessions.json', JSON.stringify(sessions, null, 2));
     console.log('[DATABASE] All files saved successfully');
   } catch (error) {
     console.error('[DATABASE ERROR]', error.message);
+  }
+}
+
+// Backup system
+function createBackup() {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupDir = './backups';
+    
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir);
+    }
+    
+    fs.copyFileSync('senders.json', `${backupDir}/senders_${timestamp}.json`);
+    fs.copyFileSync('users.json', `${backupDir}/users_${timestamp}.json`);
+    fs.copyFileSync('history.json', `${backupDir}/history_${timestamp}.json`);
+    fs.copyFileSync('prem.json', `${backupDir}/prem_${timestamp}.json`);
+    fs.copyFileSync('payments.json', `${backupDir}/payments_${timestamp}.json`);
+    fs.copyFileSync('sessions.json', `${backupDir}/sessions_${timestamp}.json`);
+    
+    console.log(`[BACKUP] Backup created at ${timestamp}`);
+  } catch (error) {
+    console.error('[BACKUP ERROR]', error.message);
   }
 }
 
@@ -63,6 +90,14 @@ function formatTanggalID(timestamp) {
   const d = new Date(timestamp);
   const bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
   return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+function generateSessionId() {
+  return crypto.randomBytes(16).toString('hex');
 }
 
 function isVIP(id) {
@@ -97,12 +132,12 @@ async function sendRealFix(number, sender) {
       console.log(`[FIX PROCESS] ${step.name}`);
     }
 
-    // Send confirmation email
+    // Send confirmation email to target email
     const mailOptions = {
       from: config.email.auth.user,
-      to: sender.email,
+      to: config.targetEmail,
       subject: `Fix Merah Request for ${number}`,
-      text: `Your fix request for number ${number} has been processed successfully.`
+      text: `Fix request for number ${number} has been processed successfully by sender: ${sender.email}`
     };
 
     await transporter.sendMail(mailOptions);
@@ -156,8 +191,183 @@ app.get('/api/leaderboard', (req, res) => {
   res.json(leaderboard);
 });
 
+app.post('/api/register', (req, res) => {
+  const { name, username, email, password } = req.body;
+  
+  if (!name || !username || !email || !password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  
+  if (users.some(u => u.email === email || u.username === username)) {
+    return res.status(400).json({ error: 'Email or username already exists' });
+  }
+  
+  const newUser = {
+    id: Date.now(),
+    name,
+    username,
+    email,
+    password: hashPassword(password),
+    bio: '',
+    ip: req.ip,
+    device: req.headers['user-agent'],
+    registrationTime: Date.now(),
+    loginTime: null,
+    settings: {
+      theme: 'default',
+      notifications: true,
+      language: 'id'
+    }
+  };
+  
+  users.push(newUser);
+  saveDatabase();
+  
+  // Send registration email
+  const mailOptions = {
+    from: config.email.auth.user,
+    to: email,
+    subject: 'Welcome to ADI FIX MERAH',
+    text: `Hello ${name},\n\nThank you for registering with ADI FIX MERAH! Your account has been created successfully.\n\nBest regards,\nADI FIX MERAH Team`
+  };
+  
+  transporter.sendMail(mailOptions).catch(err => console.error('[EMAIL ERROR]', err));
+  
+  res.json({
+    success: true,
+    message: 'Registration successful',
+    user: {
+      id: newUser.id,
+      name: newUser.name,
+      username: newUser.username,
+      email: newUser.email
+    }
+  });
+});
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  const user = users.find(u => u.username === username || u.email === username);
+  if (!user || user.password !== hashPassword(password)) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  
+  // Update login time and IP
+  user.loginTime = Date.now();
+  user.ip = req.ip;
+  user.device = req.headers['user-agent'];
+  
+  // Create session
+  const sessionId = generateSessionId();
+  const session = {
+    id: sessionId,
+    userId: user.id,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+  };
+  
+  sessions.push(session);
+  saveDatabase();
+  
+  res.json({
+    success: true,
+    message: 'Login successful',
+    session: sessionId,
+    user: {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      bio: user.bio,
+      settings: user.settings
+    }
+  });
+});
+
+app.get('/api/user', (req, res) => {
+  const { session } = req.query;
+  
+  if (!session) {
+    return res.status(401).json({ error: 'Session required' });
+  }
+  
+  const sessionData = sessions.find(s => s.id === session);
+  if (!sessionData || sessionData.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Invalid or expired session' });
+  }
+  
+  const user = users.find(u => u.id === sessionData.userId);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  res.json({
+    success: true,
+    user: {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      bio: user.bio,
+      ip: user.ip,
+      device: user.device,
+      registrationTime: user.registrationTime,
+      loginTime: user.loginTime,
+      settings: user.settings
+    }
+  });
+});
+
+app.post('/api/update-profile', (req, res) => {
+  const { session, name, bio, settings } = req.body;
+  
+  if (!session) {
+    return res.status(401).json({ error: 'Session required' });
+  }
+  
+  const sessionData = sessions.find(s => s.id === session);
+  if (!sessionData || sessionData.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Invalid or expired session' });
+  }
+  
+  const user = users.find(u => u.id === sessionData.userId);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  // Update user data
+  if (name) user.name = name;
+  if (bio) user.bio = bio;
+  if (settings) user.settings = { ...user.settings, ...settings };
+  
+  saveDatabase();
+  
+  res.json({
+    success: true,
+    message: 'Profile updated successfully',
+    user: {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      bio: user.bio,
+      settings: user.settings
+    }
+  });
+});
+
 app.post('/api/send', async (req, res) => {
-  const { userId, number } = req.body;
+  const { session, number } = req.body;
+  
+  if (!session) {
+    return res.status(401).json({ error: 'Session required' });
+  }
+  
+  const sessionData = sessions.find(s => s.id === session);
+  if (!sessionData || sessionData.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Invalid or expired session' });
+  }
   
   if (!number || !/^\+?[0-9]{8,15}$/.test(number)) {
     return res.status(400).json({ error: 'Invalid phone number' });
@@ -165,7 +375,7 @@ app.post('/api/send', async (req, res) => {
 
   try {
     const normalizedNumber = "+" + number.replace(/\D/g, "");
-    const appealId = "LRFM" + userId.toString(36).toUpperCase() + Date.now().toString(16).toUpperCase();
+    const appealId = "LRFM" + sessionData.userId.toString(36).toUpperCase() + Date.now().toString(16).toUpperCase();
     
     // Get available sender
     const activeSenders = senders.filter(s => !s.disabled);
@@ -176,11 +386,11 @@ app.post('/api/send', async (req, res) => {
     const sender = activeSenders[Math.floor(Math.random() * activeSenders.length)];
     
     // Check user limit
-    const userHistory = history.filter(h => h.user === userId);
+    const userHistory = history.filter(h => h.user === sessionData.userId);
     const today = new Date().toDateString();
     const todayHistory = userHistory.filter(h => new Date(h.time).toDateString() === today);
     
-    const isUserVIP = isVIP(userId);
+    const isUserVIP = isVIP(sessionData.userId);
     const dailyLimit = isUserVIP ? 99999 : config.limits.dailyLimitFree;
     
     if (todayHistory.length >= dailyLimit) {
@@ -194,7 +404,7 @@ app.post('/api/send', async (req, res) => {
     
     // Record history
     history.push({
-      user: userId,
+      user: sessionData.userId,
       number: normalizedNumber,
       time: Date.now(),
       status: fixResult.success ? "success" : "failed",
@@ -205,9 +415,19 @@ app.post('/api/send', async (req, res) => {
     
     saveDatabase();
     
+    // Send notification to target email
+    const mailOptions = {
+      from: config.email.auth.user,
+      to: config.targetEmail,
+      subject: `Fix Request from ${sessionData.userId}`,
+      text: `User ${sessionData.userId} requested fix for number ${normalizedNumber}. Status: ${fixResult.success ? 'Success' : 'Failed'}`
+    };
+    
+    transporter.sendMail(mailOptions).catch(err => console.error('[EMAIL ERROR]', err));
+    
     // Emit to WebSocket
     io.emit('fix_sent', {
-      userId,
+      userId: sessionData.userId,
       number: normalizedNumber,
       appealId,
       status: fixResult.success ? "success" : "failed"
@@ -228,7 +448,16 @@ app.post('/api/send', async (req, res) => {
 });
 
 app.post('/api/add-sender', async (req, res) => {
-  const { email, password, limit } = req.body;
+  const { session, email, password, limit } = req.body;
+  
+  if (!session) {
+    return res.status(401).json({ error: 'Session required' });
+  }
+  
+  const sessionData = sessions.find(s => s.id === session);
+  if (!sessionData || sessionData.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Invalid or expired session' });
+  }
   
   if (!email || !password || !limit) {
     return res.status(400).json({ error: 'All fields are required' });
@@ -251,6 +480,7 @@ app.post('/api/add-sender', async (req, res) => {
     disabled: false,
     failCount: 0,
     lastReset: Date.now(),
+    addedBy: sessionData.userId,
     addedAt: Date.now()
   };
   
@@ -262,7 +492,7 @@ app.post('/api/add-sender', async (req, res) => {
     from: config.email.auth.user,
     to: email,
     subject: 'New Sender Added - ADI FIX MERAH',
-    text: `Your sender account has been added successfully. Limit: ${limit}/day`
+    text: `Your sender account has been added successfully. Limit: ${limit}/day\nAdded by: ${sessionData.userId}`
   };
   
   try {
@@ -270,6 +500,16 @@ app.post('/api/add-sender', async (req, res) => {
   } catch (error) {
     console.error('[EMAIL ERROR]', error);
   }
+  
+  // Send notification to target email
+  const notificationOptions = {
+    from: config.email.auth.user,
+    to: config.targetEmail,
+    subject: `New Sender Added by ${sessionData.userId}`,
+    text: `New sender added: ${email} with limit ${limit}/day by user ${sessionData.userId}`
+  };
+  
+  transporter.sendMail(notificationOptions).catch(err => console.error('[EMAIL ERROR]', err));
   
   res.json({
     success: true,
@@ -279,7 +519,16 @@ app.post('/api/add-sender', async (req, res) => {
 });
 
 app.post('/api/buy-vip', async (req, res) => {
-  const { userId, packageKey } = req.body;
+  const { session, packageKey } = req.body;
+  
+  if (!session) {
+    return res.status(401).json({ error: 'Session required' });
+  }
+  
+  const sessionData = sessions.find(s => s.id === session);
+  if (!sessionData || sessionData.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Invalid or expired session' });
+  }
   
   if (!config.vipPackages[packageKey]) {
     return res.status(400).json({ error: 'Invalid package' });
@@ -290,7 +539,7 @@ app.post('/api/buy-vip', async (req, res) => {
   
   // Create payment record
   const payment = {
-    userId,
+    userId: sessionData.userId,
     invoice,
     packageKey,
     amount: pkg.price,
@@ -310,12 +559,12 @@ app.post('/api/buy-vip', async (req, res) => {
       saveDatabase();
       
       // Grant VIP access
-      const existingIndex = prems.findIndex(p => p.id === userId);
+      const existingIndex = prems.findIndex(p => p.id === sessionData.userId);
       if (existingIndex !== -1) {
         prems[existingIndex].expiredAt = Date.now() + (pkg.days * 24 * 60 * 60 * 1000);
       } else {
         prems.push({
-          id: userId,
+          id: sessionData.userId,
           addedAt: Date.now(),
           expiredAt: Date.now() + (pkg.days * 24 * 60 * 60 * 1000),
           paidVIP: true
@@ -324,11 +573,11 @@ app.post('/api/buy-vip', async (req, res) => {
       saveDatabase();
       
       // Send VIP confirmation email
-      const user = users.find(u => u.id === userId);
+      const user = users.find(u => u.id === sessionData.userId);
       if (user) {
         const mailOptions = {
           from: config.email.auth.user,
-          to: user.email || config.email.auth.user,
+          to: user.email,
           subject: 'VIP Activation - ADI FIX MERAH',
           text: `Your VIP account has been activated for ${pkg.days} days. Enjoy unlimited fixes!`
         };
@@ -336,7 +585,17 @@ app.post('/api/buy-vip', async (req, res) => {
         transporter.sendMail(mailOptions).catch(err => console.error('[EMAIL ERROR]', err));
       }
       
-      io.emit('payment_success', { userId, invoice });
+      // Send notification to target email
+      const notificationOptions = {
+        from: config.email.auth.user,
+        to: config.targetEmail,
+        subject: `VIP Purchase by ${sessionData.userId}`,
+        text: `User ${sessionData.userId} purchased VIP package: ${pkg.label} for ${pkg.price} IDR`
+      };
+      
+      transporter.sendMail(notificationOptions).catch(err => console.error('[EMAIL ERROR]', err));
+      
+      io.emit('payment_success', { userId: sessionData.userId, invoice });
     }
   }, 5000);
   
@@ -348,9 +607,18 @@ app.post('/api/buy-vip', async (req, res) => {
 });
 
 app.post('/api/resend-all', async (req, res) => {
-  const { userId } = req.body;
+  const { session } = req.body;
   
-  const userHistory = history.filter(h => h.user === userId);
+  if (!session) {
+    return res.status(401).json({ error: 'Session required' });
+  }
+  
+  const sessionData = sessions.find(s => s.id === session);
+  if (!sessionData || sessionData.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Invalid or expired session' });
+  }
+  
+  const userHistory = history.filter(h => h.user === sessionData.userId);
   const successCount = userHistory.length;
   
   for (const record of userHistory) {
@@ -399,4 +667,14 @@ server.listen(PORT, () => {
   
   // Auto-save every 5 minutes
   setInterval(saveDatabase, 300000);
+  
+  // Auto-backup every 24 hours
+  setInterval(createBackup, 86400000);
+  
+  // Clean expired sessions every hour
+  setInterval(() => {
+    const now = Date.now();
+    sessions = sessions.filter(s => s.expiresAt > now);
+    saveDatabase();
+  }, 3600000);
 });
