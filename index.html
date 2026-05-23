@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADI FIX MERAH BOT - Premium WhatsApp Fix Service</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-bg: #f9fafb;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-color);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .user-info {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .user-details h5 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-details p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0 25px 25px 0;
+            margin-right: 1rem;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .sidebar-menu i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .content-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .content-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-icon.primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+
+        .stats-icon.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .stats-icon.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .stats-icon.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .stats-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stats-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Form Styles */
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* VIP Packages */
+        .vip-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vip-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .vip-card.popular {
+            border-color: var(--primary-color);
+            position: relative;
+        }
+
+        .vip-card.popular::before {
+            content: "POPULER";
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .vip-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .vip-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .vip-duration {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        /* History Table */
+        .history-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #f9fafb;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #f3f4f6;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Loading Spinner */
+        .spinner-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                padding: 0.75rem;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .custom-toast {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .custom-toast.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .custom-toast.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .custom-toast i {
+            font-size: 1.5rem;
+        }
+
+        .custom-toast.success i {
+            color: var(--success-color);
+        }
+
+        .custom-toast.error i {
+            color: var(--danger-color);
+        }
+
+        /* Telegram Integration */
+        .telegram-widget {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .telegram-widget h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .telegram-commands {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .telegram-commands h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .command-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .command-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .command-list li:last-child {
+            border-bottom: none;
+        }
+
+        .command-name {
+            font-family: monospace;
+            background: #e5e7eb;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .command-desc {
+            color: #6b7280;
+            font-size: 0.9rem;
+            flex: 1;
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-robot"></i> ADI FIX MERAH</h2>
+            <p>Premium WhatsApp Fix Service</p>
+        </div>
+
+        <div class="user-info">
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h5 id="userName">User</h5>
+                    <p>ID: <span id="userId">Loading...</span></p>
+                </div>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" onclick="showSection('dashboard')" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('fix-merah')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Fix Merah</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('vip-packages')">
+                    <i class="fas fa-crown"></i>
+                    <span>VIP Packages</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('history')">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('leaderboard')">
+                    <i class="fas fa-trophy"></i>
+                    <span>Leaderboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('telegram')">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Telegram Bot</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section">
+            <div class="content-header">
+                <h1>Dashboard</h1>
+                <p>Monitor your account activity and statistics</p>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stats-icon primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stats-value" id="totalUsers">0</div>
+                        <div class="stats-label">Total Users</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stats-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stats-value" id="successFixes">0</div>
+                        <div class="stats-label">Success Fixes</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stats-icon warning">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="stats-value" id="vipUsers">0</div>
+                        <div class="stats-label">VIP Users</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stats-icon danger">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stats-value" id="totalRevenue">0</div>
+                        <div class="stats-label">Total Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <h3>Quick Actions</h3>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="showSection('fix-merah')">
+                                <i class="fas fa-mobile-alt"></i> Fix Merah Now
+                            </button>
+                            <button class="btn btn-primary" onclick="showSection('vip-packages')">
+                                <i class="fas fa-crown"></i> Upgrade to VIP
+                            </button>
+                            <button class="btn btn-primary" onclick="resendAllFixes()">
+                                <i class="fas fa-redo"></i> Resend All Fixes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <h3>Recent Activity</h3>
+                        <div id="recentActivity">
+                            <p class="text-muted">Loading recent activity...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fix Merah Section -->
+        <div id="fix-merah-section" class="content-section" style="display: none;">
+            <div class="content-header">
+                <h1>Fix Merah Service</h1>
+                <p>Send your WhatsApp number to fix banned/locked account</p>
+            </div>
+
+            <div class="form-section">
+                <h3>Enter Your WhatsApp Number</h3>
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="phoneNumber" placeholder="6281234567890">
+                    <div class="form-text">Format: 6281234567890 or +6281234567890</div>
+                </div>
+                <button class="btn btn-primary w-100" onclick="sendFixRequest()">
+                    <i class="fas fa-paper-plane"></i> Send Fix Request
+                </button>
+            </div>
+
+            <div class="form-section mt-4">
+                <h3>How It Works</h3>
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-mobile-alt fa-3x text-primary"></i>
+                        </div>
+                        <h5>1. Enter Number</h5>
+                        <p>Input your WhatsApp phone number that needs fixing</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-robot fa-3x text-primary"></i>
+                        </div>
+                        <h5>2. Auto Process</h5>
+                        <p>Our system automatically processes your request</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle fa-3x text-primary"></i>
+                        </div>
+                        <h5>3. Fixed!</h5>
+                        <p>Get notified when your account is fixed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIP Packages Section -->
+        <div id="vip-packages-section" class="content-section" style="display: none;">
+            <div class="content-header">
+                <h1>VIP Packages</h1>
+                <p>Upgrade to VIP for unlimited access and priority processing</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="vip-card">
+                        <div class="vip-icon">⭐</div>
+                        <h4>VIP 1 Hari</h4>
+                        <div class="vip-price">Rp 1.600</div>
+                        <div class="vip-duration">1 Day Access</div>
+                        <button class="btn btn-primary w-100 mt-3" onclick="buyVIP('1h')">
+                            Purchase
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="vip-card popular">
+                        <div class="vip-icon">💎</div>
+                        <h4>VIP 2 Hari</h4>
+                        <div class="vip-price">Rp 2.500</div>
+                        <div class="vip-duration">2 Days Access</div>
+                        <button class="btn btn-primary w-100 mt-3" onclick="buyVIP('2h')">
+                            Purchase
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="vip-card">
+                        <div class="vip-icon">👑</div>
+                        <h4>VIP 4 Hari</h4>
+                        <div class="vip-price">Rp 3.700</div>
+                        <div class="vip-duration">4 Days Access</div>
+                        <button class="btn btn-primary w-100 mt-3" onclick="buyVIP('4h')">
+                            Purchase
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="vip-card">
+                        <div class="vip-icon">🚀</div>
+                        <h4>VIP 6 Hari</h4>
+                        <div class="vip-price">Rp 5.300</div>
+                        <div class="vip-duration">6 Days Access</div>
+                        <button class="btn btn-primary w-100 mt-3" onclick="buyVIP('6h')">
+                            Purchase
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section mt-4">
+                <h3>VIP Benefits</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Unlimited daily fixes</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Priority processing</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Access to premium features</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Faster response time</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>24/7 support</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Exclusive features</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div id="history-section" class="content-section" style="display: none;">
+            <div class="content-header">
+                <h1>Fix History</h1>
+                <p>View all your fix requests and their status</p>
+            </div>
+
+            <div class="history-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Number</th>
+                            <th>Status</th>
+                            <th>ID</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center">Loading history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div id="leaderboard-section" class="content-section" style="display: none;">
+            <div class="content-header">
+                <h1>Leaderboard</h1>
+                <p>Top users with the most successful fixes</p>
+            </div>
+
+            <div class="history-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>User</th>
+                            <th>Total Fixes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardTableBody">
+                        <tr>
+                            <td colspan="3" class="text-center">Loading leaderboard...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Telegram Bot Section -->
+        <div id="telegram-section" class="content-section" style="display: none;">
+            <div class="content-header">
+                <h1>Telegram Bot Integration</h1>
+                <p>Manage your bot and view statistics through Telegram</p>
+            </div>
+
+            <div class="telegram-widget">
+                <h3><i class="fab fa-telegram"></i> Admin Panel Commands</h3>
+                
+                <div class="telegram-commands">
+                    <h5>🔧 Sender Management</h5>
+                    <ul class="command-list">
+                        <li>
+                            <span class="command-name">/addsender</span>
+                            <span class="command-desc">Add new sender (email|password|limit)</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/listsenders</span>
+                            <span class="command-desc">List all senders</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/delsender</span>
+                            <span class="command-desc">Delete sender by index</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/resetsenders</span>
+                            <span class="command-desc">Reset all senders</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="telegram-commands">
+                    <h5>👥 User Management</h5>
+                    <ul class="command-list">
+                        <li>
+                            <span class="command-name">/stats</span>
+                            <span class="command-desc">System statistics</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/vip</span>
+                            <span class="command-desc">Manage VIP packages</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/listvip</span>
+                            <span class="command-desc">List all VIP users</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/broadcast</span>
+                            <span class="command-desc">Broadcast to all users</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="telegram-commands">
+                    <h5>💰 Payment & Revenue</h5>
+                    <ul class="command-list">
+                        <li>
+                            <span class="command-name">/balance</span>
+                            <span class="command-desc">Check QRIS balance</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/payments</span>
+                            <span class="command-desc">View payment history</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="telegram-commands">
+                    <h5>🔧 System Commands</h5>
+                    <ul class="command-list">
+                        <li>
+                            <span class="command-name">/backup</span>
+                            <span class="command-desc">Manual backup</span>
+                        </li>
+                        <li>
+                            <span class="command-name">/reload</span>
+                            <span class="command-desc">Reload configuration</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Connect to Telegram Bot</h3>
+                <p>Use the following commands in your Telegram chat with the bot:</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Bot Username:</strong> @adi_fix_merah_bot
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Make sure you're added as an admin to use these commands.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="spinner-container" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Global variables
+        let currentUserId = Math.floor(Math.random() * 1000000);
+        let isVIP = false;
+        let dailyUsed = 0;
+        let dailyLimit = 2;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadUserData();
+            loadStats();
+            loadLeaderboard();
+            setupWebSocket();
+        });
+
+        // Initialize app
+        function initializeApp() {
+            document.getElementById('userId').textContent = currentUserId;
+            document.getElementById('userName').textContent = `User${currentUserId}`;
+            document.getElementById('userAvatar').textContent = `U${currentUserId.charAt(0)}`;
+            
+            // Check if user is VIP
+            checkVIPStatus();
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Show section
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).style.display = 'block';
+            
+            // Update active menu
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.closest('a').classList.add('active');
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+            
+            // Load section-specific data
+            if (sectionName === 'history') {
+                loadHistory();
+            }
+        }
+
+        // Load user data
+        function loadUserData() {
+            // Simulate loading user data
+            const userData = {
+                id: currentUserId,
+                name: `User${currentUserId}`,
+                isVIP: isVIP,
+                dailyUsed: dailyUsed,
+                dailyLimit: dailyLimit
+            };
+            
+            // Update UI based on user status
+            if (isVIP) {
+                dailyLimit = 99999;
+                showToast('Welcome back, VIP Member!', 'success');
+            }
+        }
+
+        // Check VIP status
+        function checkVIPStatus() {
+            // Simulate checking VIP status
+            setTimeout(() => {
+                // Random chance to be VIP for demo
+                isVIP = Math.random() > 0.7;
+                if (isVIP) {
+                    dailyLimit = 99999;
+                    showToast('You are a VIP Member!', 'success');
+                }
+            }, 1000);
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                document.getElementById('totalUsers').textContent = data.totalUsers;
+                document.getElementById('successFixes').textContent = data.successFix;
+                document.getElementById('vipUsers').textContent = data.vipUsers;
+                document.getElementById('totalRevenue').textContent = `Rp ${data.totalRevenue.toLocaleString()}`;
+                
+                // Update daily limit display
+                dailyLimit = isVIP ? 99999 : data.dailyLimit;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load leaderboard
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('/api/leaderboard');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('leaderboardTableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center">No data available</td></tr>';
+                    return;
+                }
+                
+                const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                
+                data.forEach((entry, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${medals[index] || `#${index + 1}`}</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.count}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        // Load history
+        async function loadHistory() {
+            try {
+                // Simulate loading history
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = '';
+                
+                // Generate mock history
+                for (let i = 0; i < 10; i++) {
+                    const row = document.createElement('tr');
+                    const date = new Date(Date.now() - i * 86400000).toLocaleDateString('id-ID');
+                    const number = `628${Math.floor(Math.random() * 100000000)}`;
+                    const status = Math.random() > 0.2 ? 'success' : 'pending';
+                    const id = `LRFM${currentUserId.toString(36).toUpperCase()}${Date.now().toString(16).toUpperCase()}`;
+                    
+                    row.innerHTML = `
+                        <td>${date}</td>
+                        <td>${number}</td>
+                        <td><span class="status-badge ${status}">${status}</span></td>
+                        <td><code>${id}</code></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="resendFix('${id}')">
+                                <i class="fas fa-redo"></i> Resend
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+                
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Send fix request
+        async function sendFixRequest() {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            
+            if (!phoneNumber || !/^\+?[0-9]{8,15}$/.test(phoneNumber)) {
+                showToast('Please enter a valid phone number', 'error');
+                return;
+            }
+            
+            if (dailyUsed >= dailyLimit) {
+                showToast('Daily limit reached. Please upgrade to VIP for unlimited access.', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        number: phoneNumber
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Fix request sent successfully!', 'success');
+                    document.getElementById('phoneNumber').value = '';
+                    dailyUsed++;
+                    
+                    // Add to history
+                    const historyItem = {
+                        date: new Date().toLocaleDateString('id-ID'),
+                        number: data.number,
+                        status: 'success',
+                        id: data.appealId
+                    };
+                    
+                    // Update UI
+                    loadHistory();
+                    loadStats();
+                } else {
+                    showToast(data.error || 'Failed to send fix request', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error sending fix:', error);
+                showToast('Failed to send fix request', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Buy VIP
+        async function buyVIP(packageKey) {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/buy-vip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        packageKey: packageKey
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`Payment initiated! Invoice: ${data.invoice}`, 'success');
+                    isVIP = true;
+                    dailyLimit = 99999;
+                    showToast('Welcome to VIP!', 'success');
+                } else {
+                    showToast(data.error || 'Failed to initiate payment', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error buying VIP:', error);
+                showToast('Failed to process payment', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Resend all fixes
+        async function resendAllFixes() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/resend-all', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`Successfully resent ${data.resent} fix requests!`, 'success');
+                    loadHistory();
+                } else {
+                    showToast('Failed to resend fixes', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error resending fixes:', error);
+                showToast('Failed to resend fixes', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Resend single fix
+        async function resendFix(id) {
+            showLoading(true);
+            
+            try {
+                // Simulate resend
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                showToast('Fix resent successfully!', 'success');
+                loadHistory();
+            } catch (error) {
+                showToast('Failed to resend fix', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Setup WebSocket
+        function setupWebSocket() {
+            const socket = io();
+            
+            socket.on('connect', () => {
+                console.log('Connected to server');
+            });
+            
+            socket.on('fix_sent', (data) => {
+                if (data.userId === currentUserId) {
+                    showToast(`Fix sent for number: ${data.number}`, 'success');
+                    loadHistory();
+                }
+            });
+            
+            socket.on('payment_success', (data) => {
+                if (data.userId === currentUserId) {
+                    showToast('Payment successful! VIP activated.', 'success');
+                    isVIP = true;
+                    dailyLimit = 99999;
+                    loadStats();
+                }
+            });
+        }
+
+        // Show loading
+        function showLoading(show) {
+            document.getElementById('loadingSpinner').style.display = show ? 'flex' : 'none';
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type}`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <div>
+                    <strong>${type === 'success' ? 'Success' : 'Error'}</strong>
+                    <div>${message}</div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
