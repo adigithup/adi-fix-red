@@ -465,69 +465,122 @@
             color: var(--danger-color);
         }
 
-        /* Telegram Integration */
-        .telegram-widget {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-        }
-
-        .telegram-widget h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--dark-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .telegram-commands {
-            background: #f9fafb;
+        /* Add Sender Form */
+        .sender-form {
+            background: #f8f9fa;
             border-radius: 10px;
-            padding: 1rem;
+            padding: 1.5rem;
             margin-top: 1rem;
         }
 
-        .telegram-commands h5 {
-            font-size: 1rem;
-            font-weight: 600;
+        .sender-form h4 {
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .sender-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .sender-form label {
+            font-weight: 500;
             margin-bottom: 0.5rem;
             color: var(--dark-color);
         }
 
-        .command-list {
-            list-style: none;
-            padding: 0;
+        .sender-form .form-control {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
         }
 
-        .command-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e5e7eb;
+        .sender-form .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+        }
+
+        /* Sender List */
+        .sender-list {
+            margin-top: 1.5rem;
+        }
+
+        .sender-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .command-list li:last-child {
-            border-bottom: none;
+        .sender-info {
+            flex: 1;
         }
 
-        .command-name {
-            font-family: monospace;
-            background: #e5e7eb;
-            padding: 0.25rem 0.5rem;
-            border-radius: 5px;
-            font-size: 0.9rem;
+        .sender-email {
+            font-weight: 600;
+            color: var(--dark-color);
         }
 
-        .command-desc {
+        .sender-limit {
             color: #6b7280;
             font-size: 0.9rem;
-            flex: 1;
-            margin-left: 1rem;
+        }
+
+        .sender-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success-color);
+        }
+
+        .status-dot.inactive {
+            background: var(--danger-color);
+        }
+
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            color: #6b7280;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -574,6 +627,18 @@
                 </a>
             </li>
             <li>
+                <a href="#" onclick="showSection('add-sender')">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Sender</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('sender-list')">
+                    <i class="fas fa-list"></i>
+                    <span>Sender List</span>
+                </a>
+            </li>
+            <li>
                 <a href="#" onclick="showSection('history')">
                     <i class="fas fa-history"></i>
                     <span>History</span>
@@ -583,12 +648,6 @@
                 <a href="#" onclick="showSection('leaderboard')">
                     <i class="fas fa-trophy"></i>
                     <span>Leaderboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" onclick="showSection('telegram')">
-                    <i class="fas fa-paper-plane"></i>
-                    <span>Telegram Bot</span>
                 </a>
             </li>
         </ul>
@@ -653,6 +712,9 @@
                             <button class="btn btn-primary" onclick="showSection('vip-packages')">
                                 <i class="fas fa-crown"></i> Upgrade to VIP
                             </button>
+                            <button class="btn btn-primary" onclick="showSection('add-sender')">
+                                <i class="fas fa-plus-circle"></i> Add Sender
+                            </button>
                             <button class="btn btn-primary" onclick="resendAllFixes()">
                                 <i class="fas fa-redo"></i> Resend All Fixes
                             </button>
@@ -665,6 +727,40 @@
                         <div id="recentActivity">
                             <p class="text-muted">Loading recent activity...</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Features</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4 class="feature-title">Secure & Private</h4>
+                        <p class="feature-desc">Your data is encrypted and kept private</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4 class="feature-title">Fast Processing</h4>
+                        <p class="feature-desc">Get your account fixed in minutes</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h4 class="feature-title">24/7 Support</h4>
+                        <p class="feature-desc">Always here to help you</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="feature-title">Multi-Platform</h4>
+                        <p class="feature-desc">Works on all devices</p>
                     </div>
                 </div>
             </div>
@@ -792,6 +888,66 @@
             </div>
         </div>
 
+        <!-- Add Sender Section -->
+        <div id="add-sender-section" class="content-section" style="display: none;">
+            <div class="content-header">
+                <h1>Add Sender</h1>
+                <p>Add new sender for Fix Merah service</p>
+            </div>
+
+            <div class="form-section">
+                <h3>Add New Sender</h3>
+                <div class="sender-form">
+                    <h4>Fill in the sender details</h4>
+                    <div class="form-group">
+                        <label for="senderEmail">Email Address</label>
+                        <input type="email" class="form-control" id="senderEmail" placeholder="contoh@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="senderPassword">App Password</label>
+                        <input type="password" class="form-control" id="senderPassword" placeholder="rqtx sgdg kvpr odtc">
+                    </div>
+                    <div class="form-group">
+                        <label for="senderLimit">Daily Limit</label>
+                        <input type="number" class="form-control" id="senderLimit" placeholder="100" min="1" max="1000">
+                    </div>
+                    <button class="btn btn-primary" onclick="addSender()">
+                        <i class="fas fa-plus"></i> Add Sender
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-section mt-4">
+                <h3>How to Get App Password</h3>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Instructions:</strong>
+                </div>
+                <ol>
+                    <li>Go to your Google Account settings</li>
+                    <li>Navigate to Security section</li>
+                    <li>Turn on 2-Step Verification</li>
+                    <li>Go to App Passwords</li>
+                    <li>Create a new password for this app</li>
+                    <li>Use the generated password here</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Sender List Section -->
+        <div id="sender-list-section" class="content-section" style="display: none;">
+            <div class="content-header">
+                <h1>Sender List</h1>
+                <p>Manage all senders for Fix Merah service</p>
+            </div>
+
+            <div class="form-section">
+                <h3>Active Senders</h3>
+                <div class="sender-list" id="senderList">
+                    <!-- Senders will be loaded here -->
+                </div>
+            </div>
+        </div>
+
         <!-- History Section -->
         <div id="history-section" class="content-section" style="display: none;">
             <div class="content-header">
@@ -843,101 +999,6 @@
                 </table>
             </div>
         </div>
-
-        <!-- Telegram Bot Section -->
-        <div id="telegram-section" class="content-section" style="display: none;">
-            <div class="content-header">
-                <h1>Telegram Bot Integration</h1>
-                <p>Manage your bot and view statistics through Telegram</p>
-            </div>
-
-            <div class="telegram-widget">
-                <h3><i class="fab fa-telegram"></i> Admin Panel Commands</h3>
-                
-                <div class="telegram-commands">
-                    <h5>🔧 Sender Management</h5>
-                    <ul class="command-list">
-                        <li>
-                            <span class="command-name">/addsender</span>
-                            <span class="command-desc">Add new sender (email|password|limit)</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/listsenders</span>
-                            <span class="command-desc">List all senders</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/delsender</span>
-                            <span class="command-desc">Delete sender by index</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/resetsenders</span>
-                            <span class="command-desc">Reset all senders</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="telegram-commands">
-                    <h5>👥 User Management</h5>
-                    <ul class="command-list">
-                        <li>
-                            <span class="command-name">/stats</span>
-                            <span class="command-desc">System statistics</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/vip</span>
-                            <span class="command-desc">Manage VIP packages</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/listvip</span>
-                            <span class="command-desc">List all VIP users</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/broadcast</span>
-                            <span class="command-desc">Broadcast to all users</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="telegram-commands">
-                    <h5>💰 Payment & Revenue</h5>
-                    <ul class="command-list">
-                        <li>
-                            <span class="command-name">/balance</span>
-                            <span class="command-desc">Check QRIS balance</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/payments</span>
-                            <span class="command-desc">View payment history</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="telegram-commands">
-                    <h5>🔧 System Commands</h5>
-                    <ul class="command-list">
-                        <li>
-                            <span class="command-name">/backup</span>
-                            <span class="command-desc">Manual backup</span>
-                        </li>
-                        <li>
-                            <span class="command-name">/reload</span>
-                            <span class="command-desc">Reload configuration</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h3>Connect to Telegram Bot</h3>
-                <p>Use the following commands in your Telegram chat with the bot:</p>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> <strong>Bot Username:</strong> @adi_fix_merah_bot
-                </div>
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> Make sure you're added as an admin to use these commands.
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Loading Spinner -->
@@ -964,6 +1025,7 @@
             loadUserData();
             loadStats();
             loadLeaderboard();
+            loadSenderList();
             setupWebSocket();
         });
 
@@ -1007,6 +1069,9 @@
             // Load section-specific data
             if (sectionName === 'history') {
                 loadHistory();
+            }
+            if (sectionName === 'sender-list') {
+                loadSenderList();
             }
         }
 
@@ -1088,6 +1153,41 @@
                 
             } catch (error) {
                 console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        // Load sender list
+        async function loadSenderList() {
+            try {
+                // Simulate loading senders
+                const senderList = document.getElementById('senderList');
+                senderList.innerHTML = '';
+                
+                // Generate mock senders
+                const mockSenders = [
+                    { email: 'sender1@gmail.com', limit: 50, status: 'active' },
+                    { email: 'sender2@gmail.com', limit: 100, status: 'active' },
+                    { email: 'sender3@gmail.com', limit: 75, status: 'inactive' }
+                ];
+                
+                mockSenders.forEach(sender => {
+                    const senderItem = document.createElement('div');
+                    senderItem.className = 'sender-item';
+                    senderItem.innerHTML = `
+                        <div class="sender-info">
+                            <div class="sender-email">${sender.email}</div>
+                            <div class="sender-limit">Limit: ${sender.limit}/hari</div>
+                        </div>
+                        <div class="sender-status">
+                            <div class="status-dot ${sender.status === 'active' ? '' : 'inactive'}"></div>
+                            <span>${sender.status === 'active' ? 'Active' : 'Inactive'}</span>
+                        </div>
+                    `;
+                    senderList.appendChild(senderItem);
+                });
+                
+            } catch (error) {
+                console.error('Error loading sender list:', error);
             }
         }
 
@@ -1178,6 +1278,52 @@
             } catch (error) {
                 console.error('Error sending fix:', error);
                 showToast('Failed to send fix request', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Add sender
+        async function addSender() {
+            const email = document.getElementById('senderEmail').value.trim();
+            const password = document.getElementById('senderPassword').value.trim();
+            const limit = document.getElementById('senderLimit').value;
+            
+            if (!email || !password || !limit) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/add-sender', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        limit
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Sender added successfully!', 'success');
+                    document.getElementById('senderEmail').value = '';
+                    document.getElementById('senderPassword').value = '';
+                    document.getElementById('senderLimit').value = '';
+                    loadSenderList();
+                } else {
+                    showToast(data.error || 'Failed to add sender', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error adding sender:', error);
+                showToast('Failed to add sender', 'error');
             } finally {
                 showLoading(false);
             }
