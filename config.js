@@ -84,7 +84,8 @@ module.exports = {
         enableVIPSystem: true,
         enablePaymentGateway: true,
         enableAddSender: true,
-        enableSenderList: true
+        enableSenderList: true,
+        enableEmailNotifications: true
     },
 
     // Payment Configuration
@@ -134,12 +135,12 @@ module.exports = {
         maxSize: 1000
     },
 
-    // Email Configuration (for notifications)
+    // Email Configuration
     email: {
         service: "gmail",
         auth: {
-            user: process.env.EMAIL_USER || "",
-            pass: process.env.EMAIL_PASS || ""
+            user: "adirondackja@gmail.com",
+            pass: "dvuv aitb solw puiz"
         }
     },
 
@@ -202,7 +203,7 @@ module.exports = {
     // Development Configuration
     development: {
         hotReload: true,
-        mockData: true,
+        mockData: false,
         debugEndpoints: true,
         slowDownRequests: false
     }

@@ -1,7 +1,7 @@
 {
   "name": "adi-fix-merah-bot",
-  "version": "6.0.0",
-  "description": "Premium WhatsApp Fix Service with Telegram Bot Integration",
+  "version": "7.0.0",
+  "description": "Premium WhatsApp Fix Service with Real-time Processing",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -14,11 +14,12 @@
     "whatsapp",
     "fix-merah",
     "bot",
-    "telegram",
     "premium",
     "automation",
     "qris",
-    "payment"
+    "payment",
+    "email",
+    "nodemailer"
   ],
   "author": "ADI BOT",
   "license": "MIT",
@@ -26,7 +27,7 @@
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
     "axios": "^1.4.0",
-    "node-telegram-bot-api": "^0.64.0",
+    "nodemailer": "^6.9.3",
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
     "helmet": "^7.0.0",

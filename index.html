@@ -346,9 +346,19 @@
             color: #065f46;
         }
 
+        .status-badge.failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         .status-badge.pending {
             background: #fef3c7;
             color: #92400e;
+        }
+
+        .status-badge.resended {
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         /* Loading Spinner */
@@ -546,6 +556,23 @@
             background: var(--danger-color);
         }
 
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
         /* Features Section */
         .features-grid {
             display: grid;
@@ -603,6 +630,7 @@
                 <div class="user-details">
                     <h5 id="userName">User</h5>
                     <p>ID: <span id="userId">Loading...</span></p>
+                    <p>Status: <span id="userStatus">Loading...</span></p>
                 </div>
             </div>
         </div>
@@ -723,9 +751,14 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-section">
-                        <h3>Recent Activity</h3>
-                        <div id="recentActivity">
-                            <p class="text-muted">Loading recent activity...</p>
+                        <h3>Daily Usage</h3>
+                        <div class="progress-container">
+                            <div class="progress">
+                                <div class="progress-bar" id="dailyUsageBar" style="width: 0%"></div>
+                            </div>
+                            <div class="mt-2">
+                                <span id="dailyUsageText">0 / <span id="dailyLimitText">2</span> requests today</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1018,6 +1051,7 @@
         let isVIP = false;
         let dailyUsed = 0;
         let dailyLimit = 2;
+        let userHistory = [];
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -1026,6 +1060,7 @@
             loadStats();
             loadLeaderboard();
             loadSenderList();
+            loadHistory();
             setupWebSocket();
         });
 
@@ -1065,14 +1100,6 @@
             if (window.innerWidth <= 768) {
                 toggleSidebar();
             }
-            
-            // Load section-specific data
-            if (sectionName === 'history') {
-                loadHistory();
-            }
-            if (sectionName === 'sender-list') {
-                loadSenderList();
-            }
         }
 
         // Load user data
@@ -1089,8 +1116,21 @@
             // Update UI based on user status
             if (isVIP) {
                 dailyLimit = 99999;
+                document.getElementById('userStatus').textContent = 'VIP Member';
+                document.getElementById('userStatus').style.color = 'var(--success-color)';
                 showToast('Welcome back, VIP Member!', 'success');
+            } else {
+                document.getElementById('userStatus').textContent = 'Free User';
+                document.getElementById('userStatus').style.color = 'var(--warning-color)';
             }
+            
+            // Calculate daily usage
+            const today = new Date().toDateString();
+            userHistory = history.filter(h => h.user === currentUserId);
+            const todayHistory = userHistory.filter(h => new Date(h.time).toDateString() === today);
+            dailyUsed = todayHistory.length;
+            
+            updateDailyUsage();
         }
 
         // Check VIP status
@@ -1103,7 +1143,23 @@
                     dailyLimit = 99999;
                     showToast('You are a VIP Member!', 'success');
                 }
+                loadUserData();
             }, 1000);
+        }
+
+        // Update daily usage
+        function updateDailyUsage() {
+            const percentage = (dailyUsed / dailyLimit) * 100;
+            document.getElementById('dailyUsageBar').style.width = `${Math.min(percentage, 100)}%`;
+            document.getElementById('dailyUsageText').innerHTML = `${dailyUsed} / <span id="dailyLimitText">${dailyLimit}</span> requests today`;
+            
+            if (percentage >= 100) {
+                document.getElementById('dailyUsageBar').style.backgroundColor = 'var(--danger-color)';
+            } else if (percentage >= 80) {
+                document.getElementById('dailyUsageBar').style.backgroundColor = 'var(--warning-color)';
+            } else {
+                document.getElementById('dailyUsageBar').style.backgroundColor = 'var(--success-color)';
+            }
         }
 
         // Load statistics
@@ -1116,9 +1172,6 @@
                 document.getElementById('successFixes').textContent = data.successFix;
                 document.getElementById('vipUsers').textContent = data.vipUsers;
                 document.getElementById('totalRevenue').textContent = `Rp ${data.totalRevenue.toLocaleString()}`;
-                
-                // Update daily limit display
-                dailyLimit = isVIP ? 99999 : data.dailyLimit;
                 
             } catch (error) {
                 console.error('Error loading stats:', error);
@@ -1165,18 +1218,25 @@
                 
                 // Generate mock senders
                 const mockSenders = [
-                    { email: 'sender1@gmail.com', limit: 50, status: 'active' },
-                    { email: 'sender2@gmail.com', limit: 100, status: 'active' },
-                    { email: 'sender3@gmail.com', limit: 75, status: 'inactive' }
+                    { email: 'sender1@gmail.com', limit: 50, status: 'active', used: 25 },
+                    { email: 'sender2@gmail.com', limit: 100, status: 'active', used: 45 },
+                    { email: 'sender3@gmail.com', limit: 75, status: 'inactive', used: 0 }
                 ];
                 
                 mockSenders.forEach(sender => {
                     const senderItem = document.createElement('div');
                     senderItem.className = 'sender-item';
+                    
+                    const usagePercentage = (sender.used / sender.limit) * 100;
+                    const statusColor = sender.status === 'active' ? 'var(--success-color)' : 'var(--danger-color)';
+                    
                     senderItem.innerHTML = `
                         <div class="sender-info">
                             <div class="sender-email">${sender.email}</div>
-                            <div class="sender-limit">Limit: ${sender.limit}/hari</div>
+                            <div class="sender-limit">Limit: ${sender.used}/${sender.limit}/hari (${usagePercentage.toFixed(0)}%)</div>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar" style="width: ${usagePercentage}%; background-color: ${statusColor};"></div>
+                            </div>
                         </div>
                         <div class="sender-status">
                             <div class="status-dot ${sender.status === 'active' ? '' : 'inactive'}"></div>
@@ -1203,18 +1263,25 @@
                     const row = document.createElement('tr');
                     const date = new Date(Date.now() - i * 86400000).toLocaleDateString('id-ID');
                     const number = `628${Math.floor(Math.random() * 100000000)}`;
-                    const status = Math.random() > 0.2 ? 'success' : 'pending';
+                    const statuses = ['success', 'failed', 'pending', 'resended'];
+                    const status = statuses[Math.floor(Math.random() * statuses.length)];
                     const id = `LRFM${currentUserId.toString(36).toUpperCase()}${Date.now().toString(16).toUpperCase()}`;
+                    
+                    const statusClass = status === 'success' ? 'success' : 
+                                       status === 'failed' ? 'failed' : 
+                                       status === 'resended' ? 'resended' : 'pending';
                     
                     row.innerHTML = `
                         <td>${date}</td>
                         <td>${number}</td>
-                        <td><span class="status-badge ${status}">${status}</span></td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
                         <td><code>${id}</code></td>
                         <td>
-                            <button class="btn btn-sm btn-primary" onclick="resendFix('${id}')">
-                                <i class="fas fa-redo"></i> Resend
-                            </button>
+                            ${status === 'failed' || status === 'pending' ? 
+                                `<button class="btn btn-sm btn-primary" onclick="resendFix('${id}')">
+                                    <i class="fas fa-redo"></i> Resend
+                                </button>` : 
+                                `<span class="text-muted">Completed</span>`}
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -1260,11 +1327,14 @@
                     document.getElementById('phoneNumber').value = '';
                     dailyUsed++;
                     
+                    // Update daily usage
+                    updateDailyUsage();
+                    
                     // Add to history
                     const historyItem = {
                         date: new Date().toLocaleDateString('id-ID'),
                         number: data.number,
-                        status: 'success',
+                        status: data.status,
                         id: data.appealId
                     };
                     
@@ -1272,7 +1342,7 @@
                     loadHistory();
                     loadStats();
                 } else {
-                    showToast(data.error || 'Failed to send fix request', 'error');
+                    showToast(data.message || 'Failed to send fix request', 'error');
                 }
                 
             } catch (error) {
@@ -1352,6 +1422,7 @@
                     isVIP = true;
                     dailyLimit = 99999;
                     showToast('Welcome to VIP!', 'success');
+                    loadUserData();
                 } else {
                     showToast(data.error || 'Failed to initiate payment', 'error');
                 }
@@ -1402,7 +1473,7 @@
             
             try {
                 // Simulate resend
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 showToast('Fix resent successfully!', 'success');
                 loadHistory();
             } catch (error) {
@@ -1422,7 +1493,7 @@
             
             socket.on('fix_sent', (data) => {
                 if (data.userId === currentUserId) {
-                    showToast(`Fix sent for number: ${data.number}`, 'success');
+                    showToast(`Fix sent for number: ${data.number} - Status: ${data.status}`, 'success');
                     loadHistory();
                 }
             });
@@ -1432,6 +1503,7 @@
                     showToast('Payment successful! VIP activated.', 'success');
                     isVIP = true;
                     dailyLimit = 99999;
+                    loadUserData();
                     loadStats();
                 }
             });
